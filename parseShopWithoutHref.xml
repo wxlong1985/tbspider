@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+ 	<var-def name="content">
+		<html-to-xml>
+			<http url="${shopUrl}"></http>
+		</html-to-xml>
+	</var-def>
+	<var-def name="basic">
+		<xquery>
+			<xq-param name="node">
+				<var name="content"></var>
+			</xq-param>
+			<xq-expression><![CDATA[
+				declare variable $node as node() external;
+				
+				let $shopName:=$node//div[@class='crumbs']/text()
+    			let $buyinfo := $node//div[@class='credit']/ul/li[1]/a/@href
+    			let $msg := $node//div[@class='error-notice-hd']/text()
+				return 
+							<basic>
+								<shopName>{$shopName}</shopName>
+    							<buyInfo>{data($buyinfo)}</buyInfo>
+    							<msg>{data($msg)}</msg>
+							</basic>	
+			
+			]]></xq-expression>
+		</xquery>
+	</var-def>
+
+ 	<var-def name="result">
+		<![CDATA[<root>]]>
+			<var name="basic"></var>
+		<![CDATA[</root>]]>
+	</var-def>
+	 <!-- 
+	<file action="write" charset="gbk" path="D:/parseShopWithoutHref.xml">		
+		<var name="result"></var>
+	</file> 	 
+	  -->
+
+</config>

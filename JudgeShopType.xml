@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<var-def name="content">
+		<html-to-xml>
+			<http url="${shopUrl}"></http>
+		</html-to-xml>
+	</var-def>
+	
+	<var-def name="Judge">
+		<xquery>
+			<xq-param name="node" type="node()"><var name="content"></var> </xq-param>
+			<xq-expression><![CDATA[
+				declare variable $node as node() external;
+				let $crumbs :=$node//div[@class='crumbs']
+				return 
+					<root>
+						
+						<withHref>{
+							if(not(empty($crumbs//a[3])))then(
+							 'true'
+							)else(
+								 'false'
+							)
+						}</withHref>
+						</root>
+												
+			]]></xq-expression>
+		</xquery>
+	</var-def>
+	<var-def name="result">
+		<var name="Judge"></var>
+	</var-def>
+	<!-- 
+	<file action="write" charset="utf-8" path="D:/JudgeShopType.xml">		
+		<var name="result"></var>
+	</file> 
+	 -->
+</config>

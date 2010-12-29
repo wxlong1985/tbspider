@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config>
+	<var-def name="content">
+		<html-to-xml>
+			<http url="${firstUrl}"></http>
+		</html-to-xml>
+	</var-def>
+	<!-- collects all tables for individual products -->
+	<var-def name="nextHref">
+
+		<xpath expression="//a[@class='page-next']/@href">
+			<var name="content"></var>
+		</xpath>
+
+	</var-def>
+	<var-def name="nextFullHref">
+		<template>
+			${sys.fullUrl(firstUrl.toString(), nextHref.toString())}
+		</template>
+	</var-def>
+
+	<var-def name="nextPageHref">
+		<![CDATA[<nextHref>]]>
+		<xquery>
+			<xq-param name="nextHref" type="string">
+				<var name="nextHref" />
+			</xq-param>
+			<xq-param name="nextFullHref" type="string">
+				<var name="nextFullHref" />
+			</xq-param>
+			<xq-expression><![CDATA[
+			                            declare variable $nextHref as xs:string external;
+			                            declare variable $nextFullHref as xs:string external;
+			                            
+			                            let $a := $nextHref
+			                            return 
+			                           		if(string-length($a)>0) then(
+			                           			$nextFullHref
+			                           		)else()
+			                           
+			                    ]]></xq-expression>
+		</xquery>
+		<![CDATA[</nextHref>]]>
+	</var-def>
+
+
+	<var-def name="ShopInfos">
+		<![CDATA[<shops>]]>
+		<xquery>
+			<xq-param name="n" type="node()">
+				<var name="content" />
+			</xq-param>
+			<xq-expression><![CDATA[
+			                            declare variable $n as node() external;
+			                            let $shops := $n//div[@class='Shop']
+			                           						
+										for $shop in $shops		
+										let $level := $shop/div[@class='UserLevel']/span/@level	
+										let $address := $shop/div[@class='Place']/text()																	    
+				                        return 
+				                        	<shop>
+				                                <shopUrl>{normalize-space(data($shop/div[@class='Info']/div[@class='ShopName']/a/@href))}</shopUrl>
+				                                <seller>{data($shop/div[@class='Seller']//a/text())}</seller>
+				                                <address>{data($address)}</address>				                                
+												<companey>{
+				                                	if(not(empty($shop/div[@class='UserLevel']/span/img))) then
+				                                	('yes')else('no')
+				                                }</companey>	
+				                                <level>{
+					                                	if(not(empty($level))) then
+					                                	(data($level))else('0')
+				                                	}</level>			                                		 
+				                             </shop>
+			                           
+			                    ]]></xq-expression>
+		</xquery>
+		<![CDATA[</shops>]]>
+	</var-def>
+	<var-def name="result">
+
+		<![CDATA[<root>]]>
+		<var name="nextPageHref"></var>
+		<var name="ShopInfos"></var>
+		<![CDATA[</root>]]>
+	</var-def>
+	
+	 
+	<file action="write" charset="utf-8"
+		path="d:\ParseSecondCategoryShops.xml">
+
+		<var name="result"></var>
+
+	</file>
+	 
+</config>

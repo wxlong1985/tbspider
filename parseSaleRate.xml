@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<var-def name="content">
+		<html-to-xml>
+			<http url="${rateUrl}"></http>
+		</html-to-xml>
+	</var-def>
+	<var-def name="buyInfo">
+		<xquery>
+			<xq-param name="node">
+				<var name="content"></var>
+			</xq-param>
+			<xq-expression><![CDATA[
+				declare variable $node as node() external;
+				let $msg := $node//div[@class='WarningMsgBoard']/h1/text()
+				let $buyInfo := $node//div[@class='personal-rating']/div[2]//table[@class='buyer-rate-info']				
+				let $address := $node//div[@class='skin-gray']/div/div[2]//dd[3]/text()
+				let $buyLevel := $node//div[@class='personal-rating']/div[2]//h4[@class='buyer']/a[1]/text()				
+				
+				 
+				return 
+					<buyInfo>						
+						<all>
+							<buyLevel>{data($buyLevel)}</buyLevel>						
+							<msg>{data($msg)}</msg>							
+							<address>{$address}</address>			
+						</all>
+					</buyInfo>
+			]]></xq-expression>
+		</xquery>
+	</var-def>	
+	<var-def name="result">
+		<var name="buyInfo"></var>
+	</var-def>
+	 <!-- 
+	<file action="write" charset="utf-8" path="D:/parseUserRate.xml">
+		<var name="result"></var>
+	</file>
+	  -->
+</config>

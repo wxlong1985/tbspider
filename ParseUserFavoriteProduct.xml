@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<config>
+
+ 
+
+	<var-def name="favContent">
+		<html-to-xml>
+			<http url="${fav}"></http>
+		</html-to-xml>
+	</var-def>
+    
+    <var-def name="nextHref">
+		<![CDATA[<nextHref>]]>
+		<xpath expression="//div[@class='PagingNav'][1]//ul[@class='PageChanger']/li[@class='NextPage']/a/@href">
+			<var name="favContent"></var>
+		</xpath>
+		<![CDATA[</nextHref>]]>
+	</var-def>
+    
+	<var-def name="products">
+		<![CDATA[<products>]]>
+		<xquery>
+			<xq-param name="n" type="node()">
+				<var name="favContent" />
+			</xq-param>
+			<xq-expression><![CDATA[
+			                            declare variable $n as node() external;
+			                            let $products := $n//div[@class='FavorItem Item']
+			                           						
+										for $product in $products	
+										let $productUrl := $product/h3/a/@href
+										let $title := $product/h3/a/text()
+										let $sellerName := $product/div//span[@class='SellerName']/a/text()
+										let $price := $product//span[@class='CurrentPrice']/em/text()																			    
+				                        return 
+				                        	<product>
+				                                <productUrl>{data($productUrl)}</productUrl>
+				                                <title>{data($title)}</title>				                                
+				                                <sellerName>{data($sellerName)}</sellerName>			                                		 
+				                                <price>{data($price)}</price>			                                		 				                                
+				                            </product>
+			                           
+			                    ]]></xq-expression>
+		</xquery>
+		<![CDATA[</products>]]>
+	</var-def>
+	
+	<var-def name="result">
+		<![CDATA[<root>]]>
+			<var name="nextHref"></var>
+			<var name="products"></var>			
+		<![CDATA[</root>]]>
+	</var-def>
+	 <!-- 
+	<file action="write" charset="utf-8" path="d:\ParseFavorite.xml">
+		<var name="result"></var>	
+	</file>
+	  -->
+</config>
+
