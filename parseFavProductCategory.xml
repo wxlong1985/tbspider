@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config>
+ 
+
+	<var-def name="content">
+		<html-to-xml>
+			<http url="${productDetailUrl}"></http>
+		</html-to-xml>
+	</var-def>
+	<var-def name="product">
+
+		<xquery>
+			<xq-param name="n" type="node()">
+				<var name="content" />
+			</xq-param>
+			<xq-expression><![CDATA[
+			   declare variable $n as node() external;
+			   
+			   let $funFirst := $n//ul[@class='PathLinksLevel1']/li[2]/a/text()
+			   let $funSecond := $n//ul[@class='PathLinksLevel1']/li[3]/a/text()
+			   let $funThird := $n//ul[@id='PathLinksLevel1']/li[4]/a/text()
+			   let $funFour := $n//ul[@id='PathLinksLevel1']/li[5]/a/text()
+			   
+			   let $funFirst1 := $n//div[@class='crumbs']//a[2]/text()
+			   let $funSecond1 := $n//div[@class='crumbs']//a[3]/text()
+			   let $funThird1 := $n//div[@class='crumbs']//a[4]/text()
+			   let $funFour1 := $n//div[@class='crumbs']//a[5]/text()
+ 			   
+ 			   let $nextUrl := $n//p[@class='ErrorMsg']/a/@href
+ 			   let $detailUrl := $n//div[@id='Cached']/a[2]/@href
+ 			   let $errorInfoUrl :=  $n//div[@id='error-info']//a/@href
+			   return 
+			   			<productInfo>
+			   				<funFirst>{data($funFirst)}</funFirst>
+			   				<funSecond>{data($funSecond)}</funSecond>
+			   				<funThird>{data($funThird)}</funThird>
+			   				<funFour>{data($funFour1)}</funFour>
+			   				<funFirst1>{data($funFirst1)}</funFirst1>
+			   				<funSecond1>{data($funSecond1)}</funSecond1>
+			   				<funThird1>{data($funThird1)}</funThird1>
+			   				<funFour1>{data($funFour1)}</funFour1>
+			   				<nextUrl>{data($nextUrl)}</nextUrl>			   				
+			   				<detailUrl>{data($detailUrl)}</detailUrl>			   				
+			   				<errorInfoUrl>{data($errorInfoUrl)}</errorInfoUrl>			   				
+			   			</productInfo>                       
+			]]></xq-expression>
+		</xquery>
+
+	</var-def>
+  
+
+	<var-def name="result">
+		<![CDATA[<root>]]>
+		<var name="product"></var>
+		<![CDATA[</root>]]>
+	</var-def>
+	<!-- 
+	<file action="write" charset="gbk" path="d:\ParseProductDetail.xml">
+		<var name="result"></var>
+
+	</file>
+	 -->
+</config>
+

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config>
+	<var-def name="content">
+		<html-to-xml>
+			<http url="${url}"></http>
+		</html-to-xml>
+	</var-def>
+	<var-def name="buyInfo">
+		<xquery>
+			<xq-param name="node">
+				<var name="content"></var>
+			</xq-param>
+			<xq-expression><![CDATA[
+				declare variable $node as node() external;
+				let $buyInfo := $node//div[@class='personal-rating']/table[@class='buyer-rate-info'][1]
+								 
+				for $item in $node//table[@class='show-rate-table']//tbody/tr
+				let $userName := $item/td[3]//a[1]/text()
+				let $personSpace := $item/td[3]//a[1]/@href
+				let $buyrate := $item/td[3]//a[2]/@href				
+				let $productUrl := $item/td[4]//a/@href
+				let $price :=  $item/td[4]/span/em/text()
+				let $title :=  $item/td[4]/p/a/@title
+				let $day := $item/td[2]/span/text()
+				return 
+					<buyInfo> 
+							<userName>{if(empty($userName)) then ($item/td[3]/text()) else ($userName)}</userName>
+							<personSpace>{data($personSpace)}</personSpace>
+							<buyRate>{data($buyrate)}</buyRate>							
+							<productUrl>{data($productUrl)}</productUrl>
+							<price>{data($price)}</price>
+							<day>{data($day)}</day>
+							<title>{data($title)}</title>
+					</buyInfo>
+			]]></xq-expression>
+		</xquery>
+	</var-def>	
+	
+	<var-def name="result">
+		<![CDATA[<root>]]>
+			<var name="buyInfo"></var>
+					<![CDATA[<nextHref>]]>
+						<var-def name="nextUrl">
+							<xpath expression="//table[@class='show-rate-table']//tfoot/tr/td//font/following-sibling::*[1]/@href">
+								<var name="content"></var>
+							</xpath>
+						</var-def>
+					<![CDATA[</nextHref>]]>
+		<![CDATA[</root>]]>			
+	</var-def>
+	 <!-- 
+	<file action="write" charset="utf-8" path="D:/parseBuyInfo.xml">
+		<var name="result"></var>
+	</file>
+	 -->
+</config>

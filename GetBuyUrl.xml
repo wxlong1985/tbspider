@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<var-def name="content">
+		<html-to-xml>
+			<http url="${url}"></http>
+		</html-to-xml>
+	</var-def>
+	<var-def name="buyInfo">
+		<xquery>
+			<xq-param name="node">
+				<var name="content"></var>
+			</xq-param>
+			<xq-expression><![CDATA[
+				declare variable $node as node() external;
+				let $msg := $node//div[@class='WarningMsgBoard']/h1/text()
+				let $saleInfo := $node//div[@class='personal-rating']/div[@class='box'][1]//table[@class='buyer-rate-info']
+				let $buyInfo := $node//div[@class='personal-rating']/div[@class='box'][2]//table[@class='buyer-rate-info']				
+								
+				let $allsaleLastSixUrl := $saleInfo/tbody/tr[4]/td[4]/a/@href
+				let $allsalePreSixUrl := $saleInfo/tbody/tr[4]/td[5]/a/@href
+				let $allbuyLastSixUrl := $buyInfo/tbody/tr[4]/td[4]/a/@href
+				let $allbuyPreSixUrl := $buyInfo/tbody/tr[4]/td[5]/a/@href
+				 
+				return 
+						<judge>
+							<msg>{data($msg)}</msg>									
+							<allsalePreSixUrl>{data($allsalePreSixUrl)}</allsalePreSixUrl>
+							<allsaleLastSixUrl>{data($allsaleLastSixUrl)}</allsaleLastSixUrl>
+							<allbuyPreSixUrl>{data($allbuyPreSixUrl)}</allbuyPreSixUrl>
+							<allbuyLastSixUrl>{data($allbuyLastSixUrl)}</allbuyLastSixUrl>														
+							
+						</judge>
+			]]></xq-expression>
+		</xquery>
+	</var-def>	
+	<var-def name="result">
+		<var name="buyInfo"></var>
+	</var-def>
+	 <!-- 
+	<file action="write" charset="utf-8" path="D:/parseUserRate.xml">
+		<var name="result"></var>
+	</file>
+	  -->
+</config>
