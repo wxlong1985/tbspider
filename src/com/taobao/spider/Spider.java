@@ -9,9 +9,16 @@ import java.io.StringReader;
 import java.net.URLEncoder;
 import java.util.concurrent.BlockingQueue;
 
+import org.apache.http.nio.reactor.IOReactorException;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
+import org.htmlcleaner.CleanerProperties;
+import org.htmlcleaner.HtmlCleaner;
+import org.htmlcleaner.JDomSerializer;
+import org.htmlcleaner.PrettyXmlSerializer;
+import org.htmlcleaner.SimpleXmlSerializer;
+import org.jdom.output.XMLOutputter;
 import org.webharvest.definition.ScraperConfiguration;
 import org.webharvest.runtime.Scraper;
 import org.webharvest.runtime.variables.Variable;
@@ -20,18 +27,41 @@ public class Spider {
 	
 	public static Spider spider;
 	
-	public String  defaultSort = "&sort=sale-desc";
+	public static NHttpClient client;
 	
-	public void parse(Spiderparam param){
-		
+	public static HtmlCleaner cleaner;
+	
+	public static XMLOutputter out = new XMLOutputter();
+	
+	
+	public void setSpiderparam(Spiderparam spiderparam) throws IOReactorException{
+		client = new NHttpClient(spiderparam);
 	}
 	
+	public NHttpClient getClient(){
+		return client;
+	}
+	public static JDomSerializer jdomSerializer;
 	public Spider(){
-				
+		cleaner = new HtmlCleaner();
+		CleanerProperties props = cleaner.getProperties(); 
+        props.setUseCdataForScriptAndStyle(true); 
+        props.setRecognizeUnicodeChars(true); 
+        props.setUseEmptyElementTags(true); 
+        props.setAdvancedXmlEscape(true); 
+        props.setTranslateSpecialEntities(true); 
+        props.setBooleanAttributeValues(""); 
+        jdomSerializer = new JDomSerializer(props,true);
+        
+	}
+	
+	public void connect() throws InterruptedException{
+		client.connect();
 	}
 	
 	
 	public static void main(String[] args) throws IOException {
+		
 		/*String url = "http://item.taobao.com/item.htm?id=8602891932";
 		File file = new File("GetBuyUrl.xml");
 		ScraperConfiguration config = new ScraperConfiguration(file);
@@ -55,11 +85,11 @@ public class Spider {
 			doc = reader.read(sr);
 		} catch (DocumentException e) {
 			e.printStackTrace();
-		}*/
-		File file = new File("d:/log.txt");
+		}
+		/*File file = new File("d:/log.txt");
 		System.setOut(new PrintStream(new FileOutputStream(file)));
 		String keyword = "福建";
-		System.out.println(URLEncoder.encode(keyword, "gbk"));
+		System.out.println(URLEncoder.encode(keyword, "gbk"));*/
 	}
 
 }
