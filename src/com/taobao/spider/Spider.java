@@ -59,6 +59,16 @@ public class Spider {
 		client.connect();
 	}
 	
+	/**
+	 * @param spiderparam
+	 * @throws IOException
+	 * 运行新任务
+	 */
+	public void reloadJob(Spiderparam spiderparam) throws IOException{
+		client.destroy();
+		client = null;		
+		setSpiderparam(spiderparam);		
+	}
 	
 	public static void main(String[] args) throws IOException {
 		
