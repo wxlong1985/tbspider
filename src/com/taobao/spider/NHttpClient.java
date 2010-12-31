@@ -105,7 +105,7 @@ public class NHttpClient {
 	private Spiderparam spiderparam;
 
 	public static int MAXCONN = 5;
-
+	
 	private Log log = LogFactory.getLog(NHttpClient.class);
 
 	private BlockingQueue<String> job = new LinkedBlockingQueue<String>(MAXCONN);
@@ -136,7 +136,7 @@ public class NHttpClient {
 				httpproc, new MyHttpRequestExecutionHandler(this.job,this.spiderparam),
 				new DefaultConnectionReuseStrategy(), params);
 
-		handler.setEventListener(new EventLogger());
+		handler.setEventListener(new EventLogger(this.spiderparam,this.job));
 
 		final IOEventDispatch ioEventDispatch = new DefaultClientIOEventDispatch(
 				handler, params);
@@ -163,7 +163,9 @@ public class NHttpClient {
 		this.job.clear();
 	}
 
-	public void destroy(int second) throws IOException {
+	public void destroy() throws IOException {
+		this.spiderparam.getQueue().clear();
+		this.job.clear();
 		this.ioReactor.shutdown();
 	}
 
@@ -332,6 +334,15 @@ public class NHttpClient {
 	 */
 	static class EventLogger implements EventListener {
 		private Log log = LogFactory.getLog(EventLogger.class);
+		
+		private Spiderparam spiderparam;
+		
+		private BlockingQueue<String> queue;
+		
+		public EventLogger(Spiderparam spiderparam,BlockingQueue<String> queue){
+			this.spiderparam= spiderparam;
+			this.queue = queue;
+		}
 
 		public void connectionOpen(final NHttpConnection conn) {
 			log.info("Event: Connection open: " + conn);
