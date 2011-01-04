@@ -3,18 +3,24 @@ package com.taobao.spider;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Observable;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.http.HttpHost;
 
-public class Spiderparam {
+import com.taobao.spider.util.Handle;
+import com.taobao.spider.util.ProductHandle;
+
+public class Spiderparam extends Observable{
 	
 	private HttpHost httphost;
 	
 	private BlockingQueue<String> queue ;
 	
 	private ArrayList<Object> results = new ArrayList<Object>();
+	
+	private int type;
 	
 	public ArrayList<Object> getResults() {
 		return results;
@@ -33,22 +39,23 @@ public class Spiderparam {
 	
 	private String nextPage;
 	
-	private String nextXpath;
+	private String nextXpath; 
 	
-	private static Spiderparam productListParam;
-	
-	private int page = 0;
+	private Handle handle;
+	 
 	
 	private String search;
 	
-	private static StringBuffer sb = new StringBuffer("s.taobao.com/search?q=%D1%A5%D7%D3&sort=sale-desc&s=0");
+	//private static StringBuffer sb = new StringBuffer("s.taobao.com/search?q=%D1%A5%D7%D3&sort=sale-desc&s=0");
 	
 	public static Spiderparam productList(String keyword) throws UnsupportedEncodingException{
 		
 		Spiderparam param = new Spiderparam();
+		param.setType(MessageType.PRODUCT);
 		param.setHttphost(new HttpHost("s.taobao.com",80));
 		param.getQueue().add("/search?sort=sale-desc&s=0&q="+URLEncoder.encode(keyword, "gbk"));
-		param.setQueueXpath("//div[@class='photo']//a");
+		param.setQueueXpath("//li[@class='list-item'][position() >= 1]");
+		//param.setQueueXpath("//li[@class='list-item']");
 		return param;
 		
 	}
@@ -98,6 +105,22 @@ public class Spiderparam {
 
 	public void setSearch(String search) {
 		this.search = search;
+	}
+
+	public int getType() {
+		return type;
+	}
+
+	public void setType(int type) {
+		this.type = type;
+	}
+
+	public Handle getHandle() {
+		return handle;
+	}
+
+	public void setHandle(Handle handle) {
+		this.handle = handle;
 	}
 
 	
