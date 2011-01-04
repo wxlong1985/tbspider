@@ -86,6 +86,8 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
 
+import com.taobao.spider.util.Handle;
+
 /**
  * Elemental example for executing HTTP requests using the non-blocking I/O
  * model.
@@ -245,25 +247,41 @@ public class NHttpClient {
 
 		public void handleResponse(final HttpResponse response,
 				final HttpContext context) {
-			HttpEntity entity = response.getEntity();
-			try {						
-				TagNode node = Spider.cleaner.clean(entity.getContent());
-				log.info(this.spiderparam.getHttphost().getHostName() +" "+response.getStatusLine());
-				Document doc = Spider.jdomSerializer.createJDom(node);
-				log.info(doc.getRootElement().toString());
-				List<Element> list = XPath.selectNodes(doc, this.spiderparam.getQueueXpath());
-				this.spiderparam.getResults().addAll(list);				
-			} catch (IOException ex) {
-				log.error("I/O error: " + ex.getMessage());
-			} catch (JDOMException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			if(response.getStatusLine().getStatusCode() == 200){
+				HttpEntity entity = response.getEntity();				
+				try {						
+					TagNode node = Spider.cleaner.clean(entity.getContent());					
+					log.info(this.spiderparam.getHttphost().getHostName() +" "+response.getStatusLine().getStatusCode());
+					Document doc = Spider.jdomSerializer.createJDom(node);
+					log.info(doc.getRootElement().toString());
+					XMLOutputter out = new XMLOutputter();
+					List<Object> list = XPath.selectNodes(doc, this.spiderparam.getQueueXpath());
+					this.spiderparam.getHandle().execute(list);
+					/*this.spiderparam.getResults().addAll(list);		
+					for (Element element : list) {
+						System.out.println(out.outputString(element));
+					} 
+					switch(this.spiderparam.getType()){
+					case MessageType.USERS:
+						
+						break;
+					case MessageType.PRODUCT:
+						Handle handler = 
+						break;
+					}*/
+				} catch (IOException ex) {
+					log.error("I/O error: " + ex.getMessage());
+				} catch (JDOMException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 
-			context.setAttribute(RESPONSE_RECEIVED, Boolean.TRUE);
-			// System.out.println("正常完成"+requestCount.getCount());
-			// Signal completion of the request execution
-			//requestCount.countDown();
+				context.setAttribute(RESPONSE_RECEIVED, Boolean.TRUE);
+				// System.out.println("正常完成"+requestCount.getCount());
+				// Signal completion of the request execution
+				//requestCount.countDown();
+				
+			}
 			this.job.remove(this.attachment);
 		}
 
